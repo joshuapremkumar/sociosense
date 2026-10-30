@@ -1,0 +1,50 @@
+{
+  "note": "Synthetic verification records for fixture mode. Sources are illustrative.",
+  "venues": {
+    "Paper Boat Kitchen": {
+      "provider": "venue accessibility sheet (reviewed 2026-09-12)",
+      "retrieved_at": "2026-09-12T10:00:00Z",
+      "claims": {
+        "sodium":   {"value": "low",  "method": "declared",  "source": "printed low-sodium menu", "confidence": 0.9},
+        "noise":    {"value": "low",  "method": "measured",  "source": "staff sound reading 56 dB at 19:00", "confidence": 0.85},
+        "texture":  {"value": "soft", "method": "declared",  "source": "menu lists soft-textured dishes", "confidence": 0.85},
+        "step_free": {"value": true,  "method": "declared",  "source": "step-free entrance and accessible WC", "confidence": 0.9}
+      }
+    },
+    "The Quiet Courtyard": {
+      "provider": "venue accessibility sheet (reviewed 2026-08-30)",
+      "retrieved_at": "2026-08-30T09:00:00Z",
+      "claims": {
+        "sodium":   {"value": "low",  "method": "declared",  "source": "chef confirmed low-salt preparation", "confidence": 0.75},
+        "noise":    {"value": "low",  "method": "declared",  "source": "garden seating, no amplified music", "confidence": 0.8},
+        "texture":  {"value": "soft", "method": "inferred",  "source": "review-text heuristic", "confidence": 0.5},
+        "step_free": {"value": true, "method": "declared",  "source": "ramp at main entrance", "confidence": 0.85}
+      }
+    },
+    "Kaveri Community Table": {
+      "provider": "community dining audit (2026-07)",
+      "retrieved_at": "2026-07-04T12:00:00Z",
+      "claims": {
+        "sodium":   {"value": "low",      "method": "declared", "source": "menu nutrition note", "confidence": 0.8},
+        "noise":    {"value": "moderate", "method": "measured", "source": "audit reading 71 dB", "confidence": 0.9},
+        "texture":  {"value": "soft",     "method": "declared", "source": "soft menu available on request", "confidence": 0.8}
+      }
+    },
+    "Vinyl & Vine": {
+      "provider": "community dining audit (2026-07)",
+      "retrieved_at": "2026-07-04T12:00:00Z",
+      "claims": {
+        "noise": {"value": "high", "method": "measured", "source": "audit reading 84 dB", "confidence": 0.9}
+      }
+    },
+    "Neon Tiffin Room": {
+      "provider": "community dining audit (2026-07)",
+      "retrieved_at": "2026-07-04T12:00:00Z",
+      "claims": {
+        "sodium":  {"value": "low",      "method": "inferred", "source": "generic cuisine assumption", "confidence": 0.3},
+        "noise":   {"value": "moderate", "method": "measured", "source": "audit reading 69 dB", "confidence": 0.85},
+        "texture": {"value": "soft",     "method": "declared", "source": "soft menu available", "confidence": 0.8}
+      }
+    }
+  }
+}

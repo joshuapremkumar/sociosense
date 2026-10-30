@@ -1,0 +1,99 @@
+{
+  "note": "Synthetic taste graph for fixture mode. Venues are fictional.",
+  "seeds": {
+    "The Lunchbox":        {"id": "seed-lunchbox",  "name": "The Lunchbox",   "domain": "urn:entity:movie"},
+    "Bombay Jayashri":     {"id": "seed-jayashri",  "name": "Bombay Jayashri","domain": "urn:entity:artist"},
+    "mediterranean":       {"id": "seed-mediterranean", "name": "Mediterranean", "domain": "urn:entity:place", "kind": "tag"},
+    "The Bear":            {"id": "seed-bear",      "name": "The Bear",       "domain": "urn:entity:tv_show"},
+    "Synthwave":           {"id": "seed-synthwave", "name": "The Midnight",   "domain": "urn:entity:artist"},
+    "Aesop":               {"id": "seed-aesop",     "name": "Aesop",          "domain": "urn:entity:brand"},
+    "French New Wave":     {"id": "seed-newwave",   "name": "Breathless",     "domain": "urn:entity:movie"},
+    "Jeopardy!":           {"id": "seed-jeopardy",  "name": "Jeopardy!",      "domain": "urn:entity:tv_show"}
+  },
+  "venues": [
+    {
+      "id": "venue-paper-boat",
+      "name": "Paper Boat Kitchen",
+      "address": "12th Main, Indiranagar",
+      "city": "Bengaluru",
+      "rating": 4.6,
+      "price_level": 2,
+      "tags": ["Mediterranean", "quiet room", "soft menu"],
+      "affinity": {
+        "seed-mediterranean": 0.88, "seed-jayashri": 0.74, "seed-lunchbox": 0.71,
+        "seed-bear": 0.83, "seed-synthwave": 0.78, "seed-aesop": 0.81,
+        "seed-newwave": 0.69, "seed-jeopardy": 0.66
+      }
+    },
+    {
+      "id": "venue-quiet-courtyard",
+      "name": "The Quiet Courtyard",
+      "address": "8th Cross, Malleshwaram",
+      "city": "Bengaluru",
+      "rating": 4.7,
+      "price_level": 3,
+      "tags": ["Mediterranean", "garden seating"],
+      "affinity": {
+        "seed-mediterranean": 0.91, "seed-jayashri": 0.82, "seed-lunchbox": 0.76,
+        "seed-bear": 0.62, "seed-synthwave": 0.55, "seed-aesop": 0.66,
+        "seed-newwave": 0.64, "seed-jeopardy": 0.72
+      }
+    },
+    {
+      "id": "venue-saffron-static",
+      "name": "Saffron & Static",
+      "address": "100 Feet Road, Indiranagar",
+      "city": "Bengaluru",
+      "rating": 4.4,
+      "price_level": 3,
+      "tags": ["Mediterranean", "vinyl bar", "neon"],
+      "affinity": {
+        "seed-mediterranean": 0.80, "seed-jayashri": 0.41, "seed-lunchbox": 0.58,
+        "seed-bear": 0.87, "seed-synthwave": 0.92, "seed-aesop": 0.85,
+        "seed-newwave": 0.83, "seed-jeopardy": 0.52
+      }
+    },
+    {
+      "id": "venue-kaveri-table",
+      "name": "Kaveri Community Table",
+      "address": "4th Block, Jayanagar",
+      "city": "Bengaluru",
+      "rating": 4.5,
+      "price_level": 2,
+      "tags": ["South Indian", "communal seating"],
+      "affinity": {
+        "seed-mediterranean": 0.52, "seed-jayashri": 0.90, "seed-lunchbox": 0.84,
+        "seed-bear": 0.38, "seed-synthwave": 0.29, "seed-aesop": 0.34,
+        "seed-newwave": 0.47, "seed-jeopardy": 0.70
+      }
+    },
+    {
+      "id": "venue-vinyl-vine",
+      "name": "Vinyl & Vine",
+      "address": "Church Street",
+      "city": "Bengaluru",
+      "rating": 4.2,
+      "price_level": 3,
+      "tags": ["small plates", "listening bar"],
+      "affinity": {
+        "seed-mediterranean": 0.45, "seed-jayashri": 0.22, "seed-lunchbox": 0.37,
+        "seed-bear": 0.90, "seed-synthwave": 0.95, "seed-aesop": 0.88,
+        "seed-newwave": 0.86, "seed-jeopardy": 0.31
+      }
+    },
+    {
+      "id": "venue-neon-tiffin",
+      "name": "Neon Tiffin Room",
+      "address": "27th Main, HSR Layout",
+      "city": "Bengaluru",
+      "rating": 4.0,
+      "price_level": 1,
+      "tags": ["vegetarian", "fast casual"],
+      "affinity": {
+        "seed-mediterranean": 0.61, "seed-jayashri": 0.50, "seed-lunchbox": 0.55,
+        "seed-bear": 0.72, "seed-synthwave": 0.74, "seed-aesop": 0.63,
+        "seed-newwave": 0.66, "seed-jeopardy": 0.58
+      }
+    }
+  ]
+}

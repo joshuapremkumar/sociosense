@@ -1,0 +1,44 @@
+{
+  "label": "Three-generation family dinner",
+  "location": "Bengaluru",
+  "requirements": {
+    "sodium": "low",
+    "max_noise": "low",
+    "texture": "soft",
+    "step_free": false,
+    "max_price_level": 3,
+    "radius_m": 8000,
+    "cuisine": "mediterranean"
+  },
+  "members": [
+    {
+      "id": "m1",
+      "label": "Grandmother (72)",
+      "age_band": "senior",
+      "tastes": [
+        {"query": "The Lunchbox", "domain": "movie"},
+        {"query": "Bombay Jayashri", "domain": "artist"},
+        {"query": "mediterranean", "domain": "place", "kind": "tag"}
+      ]
+    },
+    {
+      "id": "m2",
+      "label": "Cousin (24)",
+      "age_band": "adult",
+      "tastes": [
+        {"query": "The Bear", "domain": "tv_show"},
+        {"query": "Synthwave", "domain": "artist"},
+        {"query": "Aesop", "domain": "brand"}
+      ]
+    },
+    {
+      "id": "m3",
+      "label": "Parent (48)",
+      "age_band": "adult",
+      "tastes": [
+        {"query": "French New Wave", "domain": "movie"},
+        {"query": "Jeopardy!", "domain": "tv_show"}
+      ]
+    }
+  ]
+}
