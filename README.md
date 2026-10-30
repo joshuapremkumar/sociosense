@@ -6,6 +6,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Dependencies](https://img.shields.io/badge/dependencies-none-success)
 ![Tests](https://img.shields.io/badge/tests-47%20passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 **Contents:** [Overview](#overview) · [Key differences](#key-differences-from-naive--draft-implementations) · [Quickstart](#quickstart) · [Execution flow](#request-execution-flow) · [Architecture](#core-system-architecture) · [Live API notes](#what-live-qloo-actually-returns) · [Configuration](#configuration) · [Testing](#testing) · [Limits](#known-limits)
 
@@ -197,4 +198,9 @@ Live response shapes are represented by hand-written payloads, not committed API
 * Qloo exposes cuisine only as free-text `cuisine_description`, shown as a note rather than a verified attribute.
 * Cost is `seeds + members + 1` requests per plan; the cache helps repeated plans in one area.
 * The health layer is only as good as the facts source. Default behaviour is honest emptiness, not competence.
-* No license is granted yet; add one before redistributing.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE). You may use, modify and redistribute this code, including commercially, provided the copyright notice and permission notice are retained.
