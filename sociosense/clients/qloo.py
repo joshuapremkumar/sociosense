@@ -18,6 +18,7 @@ Notes learned from live responses:
 
 from __future__ import annotations
 
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
@@ -89,6 +90,8 @@ class QlooClient:
         self._cache_ttl = cache_ttl_s
         self._clock = clock
         self._cache: dict[str, tuple[float, dict[str, Any]]] = {}
+        #: Seed resolution runs on a thread pool, so cache access is guarded.
+        self._cache_lock = threading.Lock()
 
     # ------------------------------------------------------------------ API
     def search_entities(
@@ -228,10 +231,11 @@ class QlooClient:
     # -------------------------------------------------------------- internals
     def _get(self, path: str, params: Mapping[str, Any]) -> dict[str, Any]:
         key = f"{path}?{'&'.join(f'{k}={v}' for k, v in sorted(params.items()))}"
-        cached = self._cache.get(key)
         now = self._clock()
-        if cached and now - cached[0] < self._cache_ttl:
-            return cached[1]
+        with self._cache_lock:
+            cached = self._cache.get(key)
+            if cached and now - cached[0] < self._cache_ttl:
+                return cached[1]
 
         url = f"{self._base}{path}"
         headers = {"X-Api-Key": self._api_key, "Content-Type": "application/json", "Accept": "application/json"}
@@ -244,7 +248,8 @@ class QlooClient:
 
         if payload.get("success") is False:
             raise QlooError(f"Qloo returned an error: {payload.get('message') or payload}")
-        self._cache[key] = (now, payload)
+        with self._cache_lock:
+            self._cache[key] = (now, payload)
         return payload
 
 

@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol
 
+from ..matching import normalize
 from ..models import Claim, ClaimMethod, Venue, VenueFacts
 
 
@@ -47,9 +48,15 @@ class JsonFactsProvider:
         with self.path.open("r", encoding="utf-8") as handle:
             raw = json.load(handle)
         self._venues: dict[str, dict[str, Any]] = raw.get("venues", raw)
+        #: Fallback index so "Cafe Noir" can match a record stored as "Café Noir".
+        self._norm_venues: dict[str, dict[str, Any]] = {
+            normalize(str(key)): value for key, value in self._venues.items()
+        }
 
     def lookup(self, venue: Venue) -> VenueFacts | None:
         record = self._venues.get(venue.entity_id) or self._venues.get(venue.name)
+        if not record and venue.name:
+            record = self._norm_venues.get(normalize(venue.name))
         if not record:
             return None
         claims: dict[str, Claim] = {}

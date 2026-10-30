@@ -11,6 +11,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+
 class ConfigError(RuntimeError):
     pass
 
@@ -39,6 +40,8 @@ class Settings:
     default_radius_m: int = 8_000
     max_affinity_candidates: int = 40
     max_search_take: int = 5
+    #: Seed resolution is network-bound; bound the pool to stay under rate limits.
+    resolve_workers: int = 8
     #: Minimum lexical overlap between a taste query and a Qloo match (0..1).
     min_name_match: float = 0.5
     #: Place tags used to keep insights results to dining venues.
@@ -56,6 +59,8 @@ class Settings:
             raise ValueError("radius must be within 0..800000 metres (Qloo limit)")
         if not 0 < self.max_affinity_candidates <= 50:
             raise ValueError("Qloo returns at most 50 insights entities per page")
+        if not 1 <= self.resolve_workers <= 32:
+            raise ValueError("resolve_workers must be within 1..32")
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "Settings":
@@ -74,6 +79,7 @@ class Settings:
             max_retries=int(env.get("QLOO_MAX_RETRIES", "3")),
             cache_ttl_s=float(env.get("QLOO_CACHE_TTL_S", "900")),
             default_radius_m=int(env.get("SOCIO_RADIUS_M", "8000")),
+            resolve_workers=int(env.get("SOCIO_RESOLVE_WORKERS", "8")),
             min_name_match=float(env.get("SOCIO_MIN_NAME_MATCH", "0.5")),
             dining_tags=tuple(
                 tag.strip()

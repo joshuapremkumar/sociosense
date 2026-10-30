@@ -10,6 +10,7 @@ prose over the structured result (see ``synth.LLMPhraser``).
 from __future__ import annotations
 
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from typing import Sequence
 
@@ -98,46 +99,64 @@ class SocioSenseAgent:
         self, members: Sequence[Member], trace: list[TraceEvent]
     ) -> tuple[list[Member], list[ResolvedSeed]]:
         started = time.perf_counter()
-        resolved_members: list[Member] = []
         issues: list[ResolvedSeed] = []
         resolved_count = 0
         rejected_for_name = 0
 
-        for member in members:
-            seeds: list[TasteSeed] = []
-            for seed in member.seeds:
-                if seed.kind == "tag":
-                    match, error = self._resolve_tag(seed)
-                else:
-                    match, error = self._resolve_entity(seed)
+        # Resolution is network-bound and independent per seed, so it runs on a
+        # bounded pool.  executor.map preserves input order, which keeps each
+        # member's seed order (and therefore the report) deterministic.
+        items = [(index, seed) for index, member in enumerate(members) for seed in member.seeds]
+        workers = max(1, min(self.settings.resolve_workers, len(items) or 1))
 
-                if match is None:
-                    seeds.append(seed)
-                    issues.append(ResolvedSeed(seed=seed, matches=0, error=error))
-                    if error and error.startswith("weak name match"):
-                        rejected_for_name += 1
-                    continue
+        def resolve_item(item: tuple[int, TasteSeed]):
+            index, seed = item
+            if seed.kind == "tag":
+                match, error = self._resolve_tag(seed)
+            else:
+                match, error = self._resolve_entity(seed)
+            return index, seed, match, error
 
-                resolved_id, name, domain, score = match
-                resolved_count += 1
-                seeds.append(
-                    replace(
-                        seed,
-                        resolved_id=resolved_id,
-                        resolved_name=name,
-                        resolved_domain=domain or seed.domain,
-                        match_score=score,
-                    )
+        if workers == 1:
+            results = [resolve_item(item) for item in items]
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                results = list(executor.map(resolve_item, items))
+
+        member_seeds: dict[int, list[TasteSeed]] = {index: [] for index in range(len(members))}
+        for index, seed, match, error in results:
+            if match is None:
+                member_seeds[index].append(seed)
+                issues.append(ResolvedSeed(seed=seed, matches=0, error=error))
+                if error and error.startswith("weak name match"):
+                    rejected_for_name += 1
+                continue
+
+            resolved_id, name, domain, score = match
+            resolved_count += 1
+            member_seeds[index].append(
+                replace(
+                    seed,
+                    resolved_id=resolved_id,
+                    resolved_name=name,
+                    resolved_domain=domain or seed.domain,
+                    match_score=score,
                 )
-            resolved_members.append(replace(member, seeds=tuple(seeds)))
+            )
+
+        resolved_members = [
+            replace(member, seeds=tuple(member_seeds[index]))
+            for index, member in enumerate(members)
+        ]
 
         trace.append(
             TraceEvent(
                 step="qloo.resolve_seeds",
-                detail=f"resolved {resolved_count}/{sum(len(m.seeds) for m in members)} taste seeds",
+                detail=f"resolved {resolved_count}/{len(items)} taste seeds",
                 payload={
                     "unresolved": [i.seed.query for i in issues],
                     "rejected_for_weak_name_match": rejected_for_name,
+                    "workers": workers,
                 },
                 duration_ms=_ms(started),
             )
