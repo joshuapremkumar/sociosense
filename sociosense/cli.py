@@ -35,6 +35,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     doctor = sub.add_parser("doctor", help="verify credentials and endpoint access")
     doctor.add_argument("--location", default="Bengaluru", help="locality used for the insights check")
+
+    serve = sub.add_parser("serve", help="run the local web dashboard")
+    serve.add_argument("--profile", required=True, type=Path, help="family profile JSON")
+    serve.add_argument("--facts", type=Path, help="verification records for venue attributes")
+    serve.add_argument("--demo", action="store_true", help="use the synthetic fixture taste graph")
+    serve.add_argument("--fixture", type=Path, default=DEFAULT_FIXTURE, help="fixture graph path")
+    serve.add_argument("--host", default="127.0.0.1", help="bind address (default: loopback only)")
+    serve.add_argument("--port", type=int, default=8765, help="port (0 picks a free one)")
+    serve.add_argument("--open", action="store_true", help="open the dashboard in a browser")
     return parser
 
 
@@ -86,7 +95,7 @@ def build_requirements(profile: dict, settings: Settings) -> Requirements:
     )
 
 
-def _client(settings: Settings, demo: bool, fixture: Path | None) -> tuple[QlooClient, str]:
+def build_client(settings: Settings, demo: bool, fixture: Path | None) -> tuple[QlooClient, str]:
     if demo:
         transport = FixtureQlooTransport(fixture or DEFAULT_FIXTURE)
         return QlooClient("fixture", transport=transport, cache_ttl_s=0), "fixture"
@@ -109,7 +118,7 @@ def _client(settings: Settings, demo: bool, fixture: Path | None) -> tuple[QlooC
 def run_plan(args: argparse.Namespace, settings: Settings) -> int:
     profile = load_profile(args.profile)
     try:
-        client, data_mode = _client(settings, args.demo, args.fixture)
+        client, data_mode = build_client(settings, args.demo, args.fixture)
     except ConfigError as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 1
@@ -213,6 +222,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "doctor":
             return run_doctor(args, settings)
+        if args.command == "serve":
+            from .serve import run_serve
+
+            return run_serve(args, settings)
         return run_plan(args, settings)
     except ConfigError as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)

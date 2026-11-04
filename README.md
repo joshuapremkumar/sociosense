@@ -5,10 +5,10 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Dependencies](https://img.shields.io/badge/dependencies-none-success)
-![Tests](https://img.shields.io/badge/tests-55%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-68%20passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**Contents:** [Overview](#overview) · [Key differences](#key-differences-from-naive--draft-implementations) · [Quickstart](#quickstart) · [Execution flow](#request-execution-flow) · [Architecture](#core-system-architecture) · [Live API notes](#what-live-qloo-actually-returns) · [Configuration](#configuration) · [Testing](#testing) · [Limits](#known-limits)
+**Contents:** [Overview](#overview) · [Key differences](#key-differences-from-naive--draft-implementations) · [Quickstart](#quickstart) · [Dashboard](#dashboard) · [Execution flow](#request-execution-flow) · [Architecture](#core-system-architecture) · [Live API notes](#what-live-qloo-actually-returns) · [Configuration](#configuration) · [Testing](#testing) · [Limits](#known-limits)
 
 ---
 
@@ -34,7 +34,7 @@ SocioSense separates cultural inference from factual verification:
 | **Attribution** | One flat seed list for the whole family | One insights call **per member**, so affinity stays attributable |
 | **Failure mode** | Mock data with invented venues on any error | Fail-closed (`QlooError` / `QlooAuthError`); fixtures only via explicit `--demo` (`data_mode="fixture"`) |
 | **Health data** | Validated menu attributes Qloo does not return | Dedicated `FactsProvider` with per-attribute provenance (`DECLARED` / `MEASURED`) |
-| **Reliability** | No retries, timeouts or caching | Jittered exponential backoff, `Retry-After`, TTL cache, bounded seed-resolution pool, 55 tests |
+| **Reliability** | No retries, timeouts or caching | Jittered exponential backoff, `Retry-After`, TTL cache, bounded seed-resolution pool, 68 tests |
 
 ---
 
@@ -58,6 +58,31 @@ python -m sociosense plan --profile examples/family.json --limit 6
 The hackathon key works **only** against `https://hackathon.api.qloo.com`; staging and production return `401`. Set that in `QLOO_BASE_URL`. `.env` is loaded automatically and is gitignored.
 
 On Windows, use `py -3.14` if `python` is not on `PATH`, and set `PYTHONIOENCODING=utf-8` for live output.
+
+### 3. Web dashboard
+
+```bash
+python -m sociosense serve --profile examples/family.json \
+  --facts examples/demo_facts.json --demo
+# SocioSense dashboard: http://127.0.0.1:8765/
+```
+
+Drop `--demo` (and set `QLOO_API_KEY`) for the same UI over live Qloo data. `--host 0.0.0.0` exposes it on the network; the default is loopback only. `--port 0` picks a free port.
+
+---
+
+## Dashboard
+
+`serve` adds a local UI over the exact same pipeline — it is transport, not a second implementation. The page is a dependency-free port of the project's React/TSX design: no Node, no npm, no build step, no CDN. It ships inside the package and is served from memory.
+
+* **Hard-constraint toggles** re-run the plan through `/api/plan`; they do not filter client-side.
+* **Ready to book** vs **Worth a phone call** comes from the constraint engine's `PASS` / `UNKNOWN` verdicts, not from affinity.
+* **Cultural affinity** is per member, with the seed that drove it and an `estimated lower bound` marker when a member's result list omitted the venue.
+* **Verification & safety** shows the facts provider and every unverified constraint as a caveat.
+* **Excluded**, **Ungrounded tastes**, **Members not represented** and the **audit trace** are rendered verbatim, so failures stay visible.
+* API strings are inserted as text nodes, never as HTML.
+
+The server binds loopback by default, sets `Cache-Control: no-store` on API responses, and returns errors as JSON with a non-200 status rather than inventing a plan.
 
 ---
 
@@ -157,6 +182,8 @@ Run `doctor` before debugging a plan — it separates credential, tag and insigh
 ```text
 sociosense/
 ├── agent.py          # Pipeline orchestration and trace generation
+├── serve.py          # Loopback web server + JSON API for the dashboard
+├── web/              # Dependency-free dashboard (HTML, CSS, JS)
 ├── matching.py       # Lexical name guard (blocks false seed matches)
 ├── constraints.py    # PASS / FAIL / UNKNOWN engine
 ├── scoring.py        # Bridge, quality and coverage metrics
@@ -167,7 +194,7 @@ sociosense/
 │   ├── qloo.py       # v2 search, tags, insights
 │   └── facts.py      # Provenance-bearing venue attributes
 examples/             # Family profile, demo graph, sample facts
-tests/                # 55 unit tests
+tests/                # 68 unit tests
 ```
 
 ---
@@ -178,7 +205,7 @@ tests/                # 55 unit tests
 python -m unittest discover -s tests -t . -v
 ```
 
-55 unit tests cover: v2 request shape and auth header, 401/5xx behaviour (no fabrication), 429 retry with `Retry-After`, caching, nested tag results, tag-seed insight parameters, dining-shape filtering, explainability flattening, name-match rejection, parallel seed resolution (order, thread use, partial failure), normalized facts fallback, `UNKNOWN` vs `PASS`, inferred claims rejected as evidence, fairness weighting, missing-member handling, the full fixture pipeline, and the LLM outline guard.
+68 unit tests cover: v2 request shape and auth header, 401/5xx behaviour (no fabrication), 429 retry with `Retry-After`, caching, nested tag results, tag-seed insight parameters, dining-shape filtering, explainability flattening, name-match rejection, parallel seed resolution (order, thread use, partial failure), normalized facts fallback, `UNKNOWN` vs `PASS`, inferred claims rejected as evidence, fairness weighting, missing-member handling, the full fixture pipeline, fixture tag transport routes, the dashboard API and its constraint parsing, and the LLM outline guard.
 
 Live response shapes are represented by hand-written payloads, not committed API dumps.
 

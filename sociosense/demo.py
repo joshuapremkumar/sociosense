@@ -33,9 +33,26 @@ class FixtureQlooTransport:
         params = params or {}
         if "/search" in url:
             return self._search(str(params.get("query", "")))
+        if "/tags" in url:
+            return self._tags(str(params.get("filter.query", "")))
         if "/insights" in url:
             return self._insights(params)
         raise ValueError(f"fixture transport does not implement {url}")
+
+    def _tag_result(self, seed: Mapping[str, Any]) -> dict[str, Any]:
+        return {
+            "id": seed["id"],
+            "name": seed["name"],
+            "type": "urn:tag:genre:place:restaurant",
+            "parents": [{"type": "urn:entity:place"}],
+            "popularity": 0.9,
+        }
+
+    def _tags(self, query: str) -> dict[str, Any]:
+        seed = self.seeds.get(query.strip().lower())
+        if not seed or seed.get("kind") != "tag":
+            return {"success": True, "results": {"tags": []}}
+        return {"success": True, "results": {"tags": [self._tag_result(seed)]}}
 
     def _search(self, query: str) -> dict[str, Any]:
         seed = self.seeds.get(query.strip().lower())
@@ -45,15 +62,7 @@ class FixtureQlooTransport:
             return {
                 "success": True,
                 "results": {
-                    "tags": [
-                        {
-                            "id": seed["id"],
-                            "name": seed["name"],
-                            "type": "urn:tag:genre:place:restaurant",
-                            "parents": [{"type": "urn:entity:place"}],
-                            "popularity": 0.9,
-                        }
-                    ]
+                    "tags": [self._tag_result(seed)]
                 },
             }
         return {

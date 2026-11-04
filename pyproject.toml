@@ -20,6 +20,9 @@ sociosense = "sociosense.cli:main"
 [tool.setuptools.packages.find]
 include = ["sociosense*"]
 
+[tool.setuptools.package-data]
+sociosense = ["web/*.html", "web/*.css", "web/*.js"]
+
 [tool.mypy]
 python_version = "3.10"
 strict = true

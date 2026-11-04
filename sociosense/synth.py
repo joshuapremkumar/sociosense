@@ -187,6 +187,7 @@ def _rec_dict(rec: Recommendation) -> dict[str, Any]:
         "city": venue.city,
         "rating": venue.rating,
         "price_level": venue.price_level,
+        "cuisine": venue.cuisine,
         "status": rec.status.value,
         "bridge_score": round(candidate.bridge_score, 4),
         "final_score": round(candidate.final_score, 4),
