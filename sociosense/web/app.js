@@ -8,6 +8,7 @@ const STATE = {
   constraints: new Set(),
   profile: null,
   loading: false,
+  pending: false,
   timer: null,
   startedAt: 0,
 };
@@ -405,7 +406,13 @@ async function getJSON(url) {
 }
 
 async function updatePlan() {
-  if (STATE.loading || !STATE.profile) return;
+  if (!STATE.profile) return;
+  // A toggle changed while a plan was in flight: remember it and re-run once,
+  // so the rendered plan always matches the visible constraint switches.
+  if (STATE.loading) {
+    STATE.pending = true;
+    return;
+  }
   setLoading(true);
   try {
     const query = new URLSearchParams({ constraints: [...STATE.constraints].join(",") });
@@ -415,6 +422,10 @@ async function updatePlan() {
     renderError(String(error.message || error));
   } finally {
     setLoading(false);
+    if (STATE.pending) {
+      STATE.pending = false;
+      updatePlan();
+    }
   }
 }
 
@@ -443,6 +454,7 @@ for (const button of document.querySelectorAll(".toggle")) {
     if (STATE.constraints.has(key)) STATE.constraints.delete(key);
     else STATE.constraints.add(key);
     syncToggles();
+    updatePlan();
   });
 }
 
